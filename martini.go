@@ -23,6 +23,7 @@ import (
 	"net/http"
 	"os"
 	"reflect"
+	"github.com/pilu/fresh/runner/runnerutils"
 )
 
 // Martini represents the top level web application. inject.Injector methods can be invoked to map services on a global level.
@@ -73,6 +74,14 @@ func (m *Martini) Run() {
 	port := os.Getenv("PORT")
 	if len(port) == 0 {
 		port = "3000"
+	}
+
+	if os.Getenv("DEV_RUNNER") == "1" {
+		m.Use(func(res http.ResponseWriter, req *http.Request) {
+			if runnerutils.HasErrors() {
+				runnerutils.RenderError(res)
+			}
+		})
 	}
 
 	m.logger.Println("listening on port " + port)
